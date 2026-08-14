@@ -21,7 +21,6 @@
         header {
             text-align: center;
             padding: 24px;
-
             background: #181b22;
             border-bottom: 1px solid #303641;
         }
@@ -43,10 +42,8 @@
 
         .panel {
             background: #191d24;
-
             border: 1px solid #2d333d;
             border-radius: 14px;
-
             padding: 18px;
             margin-bottom: 18px;
         }
@@ -54,7 +51,6 @@
         .toolbar {
             display: flex;
             flex-wrap: wrap;
-
             align-items: center;
             gap: 10px;
         }
@@ -63,12 +59,9 @@
         .file-button {
             background: #262c36;
             color: white;
-
             border: 1px solid #3a424f;
             border-radius: 8px;
-
             padding: 10px 14px;
-
             cursor: pointer;
             font-size: 14px;
         }
@@ -92,6 +85,15 @@
             background: #2d9955;
         }
 
+        .reset {
+            background: #704b22;
+            border-color: #976a32;
+        }
+
+        .reset:hover {
+            background: #855c29;
+        }
+
         input[type="file"] {
             display: none;
         }
@@ -99,42 +101,40 @@
         .rgb-box {
             display: flex;
             align-items: center;
-
             gap: 5px;
-
             background: #11151b;
             padding: 6px 10px;
-
             border-radius: 8px;
         }
 
         .rgb-box input[type="number"] {
             width: 58px;
-
             background: #242a33;
             color: white;
-
             border: 1px solid #3b4452;
             border-radius: 5px;
-
             padding: 7px;
         }
 
         #colorPicker {
             width: 48px;
             height: 38px;
-
             border: none;
             background: transparent;
-
             cursor: pointer;
+        }
+
+        .color-preview {
+            width: 35px;
+            height: 35px;
+            border-radius: 6px;
+            border: 2px solid white;
+            background: rgb(255, 0, 0);
         }
 
         .canvas-container {
             overflow: auto;
-
             padding: 20px;
-
             border-radius: 12px;
 
             background-color: #242a33;
@@ -156,7 +156,6 @@
 
         #editor {
             display: block;
-
             width: 1024px;
             height: 512px;
 
@@ -164,33 +163,29 @@
             image-rendering: crisp-edges;
 
             cursor: crosshair;
-
             touch-action: none;
         }
 
         .info {
             margin-top: 12px;
-
             font-size: 13px;
             color: #a7afbd;
         }
 
         .coordinate {
             margin-left: auto;
-
             color: #a7afbd;
             font-size: 13px;
         }
 
-        .color-preview {
-            width: 35px;
-            height: 35px;
+        @media (max-width: 700px) {
+            .container {
+                padding: 0 8px;
+            }
 
-            border-radius: 6px;
-
-            border: 2px solid white;
-
-            background: rgb(255, 0, 0);
+            .panel {
+                padding: 12px;
+            }
         }
     </style>
 </head>
@@ -295,6 +290,14 @@
             </button>
 
 
+            <button
+                    class="reset"
+                    onclick="resetToDefault()"
+            >
+                기본 양식 복원
+            </button>
+
+
             <label class="file-button">
 
                 PNG 불러오기
@@ -344,7 +347,6 @@
         <div class="info">
 
             한 칸 = 실제 PNG의 1픽셀
-
             &nbsp;|&nbsp;
 
             실제 저장 크기:
@@ -352,7 +354,7 @@
 
             &nbsp;|&nbsp;
 
-            마우스 왼쪽 버튼으로 그릴 수 있습니다.
+            처음 접속하면 기본 망토 양식이 자동으로 표시됩니다.
 
         </div>
 
@@ -364,17 +366,25 @@
 <script>
 
     // ==========================================
-    // 기본 크기
+    // 기본 설정
     // ==========================================
 
     const WIDTH = 64;
     const HEIGHT = 32;
-
     const SCALE = 16;
 
 
     // ==========================================
-    // 실제 저장될 64 x 32 캔버스
+    // 기본 망토 이미지
+    // 사용자가 올린 64x32 PNG를 HTML 내부에 저장
+    // ==========================================
+
+    const DEFAULT_CAPE =
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAMAAACVQ462AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJUExURQAAAP///wAAAHPGg3EAAAADdFJOU///ANfKDUEAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCA1LjEuMTGKCBbOAAAAuGVYSWZJSSoACAAAAAUAGgEFAAEAAABKAAAAGwEFAAEAAABSAAAAKAEDAAEAAAACAAAAMQECABEAAABaAAAAaYcEAAEAAABsAAAAAAAAAGAAAAABAAAAYAAAAAEAAABQYWludC5ORVQgNS4xLjExAAADAACQBwAEAAAAMDIzMAGgAwABAAAAAQAAAAWgBAABAAAAlgAAAAAAAAACAAEAAgAEAAAAUjk4AAIABwAEAAAAMDEwMAAAAAAGNdRzso9yOwAAAMlJREFUSEvtlEEShSAMQwv3P7RDG5C2QVG3ZlwwSX0/gn6pQlRPEctJpAxNy3lgHs+6Bdx12AJYygmWSr9K+6kiDlAB5gQFtFv0PrRIAGTOhVKDFaDlzoXiHvBHaObiGZDoxGAlQPedjRCdUR8nlgAYczbC1EAXaeYa0BueAD9qe8g3IQNs6Yd69AGAds62bA9Abcu2AHhRX++BHqSelbc1ioaJAniDaJgiwL6n94DxRQebTELRvjjGaJiSvfxbI9Yz/YAf0PQZcABjTAzvSFDNiAAAAABJRU5ErkJggg==";
+
+
+    // ==========================================
+    // 실제 저장될 64x32 캔버스
     // ==========================================
 
     const capeCanvas =
@@ -396,8 +406,12 @@
         );
 
 
+    capeCtx.imageSmoothingEnabled =
+        false;
+
+
     // ==========================================
-    // 화면 표시 캔버스
+    // 화면 표시용 캔버스
     // ==========================================
 
     const editor =
@@ -417,7 +431,7 @@
 
 
     // ==========================================
-    // RGB
+    // RGB 관련
     // ==========================================
 
     const red =
@@ -425,10 +439,12 @@
             "red"
         );
 
+
     const green =
         document.getElementById(
             "green"
         );
+
 
     const blue =
         document.getElementById(
@@ -455,7 +471,7 @@
 
 
     // ==========================================
-    // 상태
+    // 현재 상태
     // ==========================================
 
     let tool =
@@ -469,6 +485,7 @@
     let lastX =
         -1;
 
+
     let lastY =
         -1;
 
@@ -478,12 +495,10 @@
 
 
     // ==========================================
-    // RGB 제한
+    // RGB 숫자 제한
     // ==========================================
 
-    function clampRGB(
-        value
-    ) {
+    function clampRGB(value) {
 
         value =
             parseInt(value);
@@ -519,26 +534,11 @@
 
         return "#"
             +
-            r
-                .toString(16)
-                .padStart(
-                    2,
-                    "0"
-                )
+            r.toString(16).padStart(2, "0")
             +
-            g
-                .toString(16)
-                .padStart(
-                    2,
-                    "0"
-                )
+            g.toString(16).padStart(2, "0")
             +
-            b
-                .toString(16)
-                .padStart(
-                    2,
-                    "0"
-                );
+            b.toString(16).padStart(2, "0");
     }
 
 
@@ -546,9 +546,7 @@
     // HEX → RGB
     // ==========================================
 
-    function hexToRgb(
-        hex
-    ) {
+    function hexToRgb(hex) {
 
         return {
 
@@ -584,21 +582,35 @@
 
 
     // ==========================================
-    // 현재 색상
+    // 현재 RGB 색상
     // ==========================================
 
     function getColor() {
 
-        return `rgb(
-            ${clampRGB(red.value)},
-            ${clampRGB(green.value)},
-            ${clampRGB(blue.value)}
-        )`;
+        const r =
+            clampRGB(
+                red.value
+            );
+
+
+        const g =
+            clampRGB(
+                green.value
+            );
+
+
+        const b =
+            clampRGB(
+                blue.value
+            );
+
+
+        return `rgb(${r}, ${g}, ${b})`;
     }
 
 
     // ==========================================
-    // RGB 변경
+    // RGB 입력 변경
     // ==========================================
 
     function updateFromRGB() {
@@ -608,10 +620,12 @@
                 red.value
             );
 
+
         const g =
             clampRGB(
                 green.value
             );
+
 
         const b =
             clampRGB(
@@ -622,8 +636,10 @@
         red.value =
             r;
 
+
         green.value =
             g;
+
 
         blue.value =
             b;
@@ -642,12 +658,12 @@
 
 
         colorPreview.style.background =
-            `rgb(${r},${g},${b})`;
+            hex;
     }
 
 
     // ==========================================
-    // 색상창 변경
+    // 색상 선택창 변경
     // ==========================================
 
     function updateFromPicker() {
@@ -661,8 +677,10 @@
         red.value =
             rgb.r;
 
+
         green.value =
             rgb.g;
+
 
         blue.value =
             rgb.b;
@@ -701,9 +719,7 @@
     // 도구 선택
     // ==========================================
 
-    function setTool(
-        name
-    ) {
+    function setTool(name) {
 
         tool =
             name;
@@ -783,7 +799,7 @@
 
 
     // ==========================================
-    // 화면 렌더링
+    // 편집 화면 렌더링
     // ==========================================
 
     function render() {
@@ -814,7 +830,7 @@
 
 
     // ==========================================
-    // 64 x 32 그리드
+    // 64 x 32 픽셀 그리드
     // ==========================================
 
     function drawGrid() {
@@ -823,7 +839,7 @@
 
 
         ctx.strokeStyle =
-            "rgba(255,255,255,0.14)";
+            "rgba(255,255,255,0.18)";
 
 
         ctx.lineWidth =
@@ -885,12 +901,10 @@
 
 
     // ==========================================
-    // 마우스 위치 → 실제 픽셀
+    // 마우스 좌표 → 64x32 픽셀 위치
     // ==========================================
 
-    function getPixel(
-        event
-    ) {
+    function getPixel(event) {
 
         const rect =
             editor
@@ -935,7 +949,7 @@
                 Math.max(
                     0,
                     Math.min(
-                        63,
+                        WIDTH - 1,
                         x
                     )
                 ),
@@ -944,7 +958,7 @@
                 Math.max(
                     0,
                     Math.min(
-                        31,
+                        HEIGHT - 1,
                         y
                     )
                 )
@@ -954,7 +968,7 @@
 
 
     // ==========================================
-    // 기록
+    // 작업 기록 저장
     // ==========================================
 
     function saveHistory() {
@@ -1088,8 +1102,10 @@
         red.value =
             pixel[0];
 
+
         green.value =
             pixel[1];
+
 
         blue.value =
             pixel[2];
@@ -1105,7 +1121,7 @@
 
 
     // ==========================================
-    // 마우스 클릭
+    // 마우스 클릭 시작
     // ==========================================
 
     editor.addEventListener(
@@ -1131,6 +1147,7 @@
                     pixel.y
                 );
 
+
                 return;
             }
 
@@ -1144,6 +1161,7 @@
 
             lastX =
                 pixel.x;
+
 
             lastY =
                 pixel.y;
@@ -1163,7 +1181,7 @@
 
 
     // ==========================================
-    // 드래그
+    // 마우스 드래그
     // ==========================================
 
     editor.addEventListener(
@@ -1207,6 +1225,7 @@
             lastX =
                 pixel.x;
 
+
             lastY =
                 pixel.y;
         }
@@ -1214,7 +1233,7 @@
 
 
     // ==========================================
-    // 클릭 종료
+    // 마우스 클릭 종료
     // ==========================================
 
     window.addEventListener(
@@ -1224,8 +1243,10 @@
             drawing =
                 false;
 
+
             lastX =
                 -1;
+
 
             lastY =
                 -1;
@@ -1265,7 +1286,83 @@
 
 
     // ==========================================
-    // PNG 불러오기
+    // 기본 양식 불러오기
+    // ==========================================
+
+    function loadDefaultCape(
+        saveUndo = false
+    ) {
+
+        const image =
+            new Image();
+
+
+        image.onload =
+            function() {
+
+
+                if (
+                    saveUndo
+                ) {
+
+                    saveHistory();
+                }
+
+
+                capeCtx.clearRect(
+                    0,
+                    0,
+                    WIDTH,
+                    HEIGHT
+                );
+
+
+                capeCtx.imageSmoothingEnabled =
+                    false;
+
+
+                capeCtx.drawImage(
+                    image,
+                    0,
+                    0,
+                    WIDTH,
+                    HEIGHT
+                );
+
+
+                render();
+            };
+
+
+        image.src =
+            DEFAULT_CAPE;
+    }
+
+
+    // ==========================================
+    // 기본 양식 복원
+    // ==========================================
+
+    function resetToDefault() {
+
+        if (
+            !confirm(
+                "기본 망토 양식으로 되돌릴까요?"
+            )
+        ) {
+
+            return;
+        }
+
+
+        loadDefaultCape(
+            true
+        );
+    }
+
+
+    // ==========================================
+    // 사용자가 PNG 불러오기
     // ==========================================
 
     document
@@ -1277,9 +1374,7 @@
             event => {
 
                 const file =
-                    event
-                        .target
-                        .files[0];
+                    event.target.files[0];
 
 
                 if (
@@ -1297,15 +1392,24 @@
                 image.onload =
                     function() {
 
+
                         if (
-                            image.width !== 64
+                            image.width !==
+                            64
                             ||
-                            image.height !== 32
+                            image.height !==
+                            32
                         ) {
 
                             alert(
                                 "64×32 PNG 파일만 불러올 수 있습니다."
                             );
+
+
+                            URL.revokeObjectURL(
+                                image.src
+                            );
+
 
                             return;
                         }
@@ -1322,10 +1426,16 @@
                         );
 
 
+                        capeCtx.imageSmoothingEnabled =
+                            false;
+
+
                         capeCtx.drawImage(
                             image,
                             0,
-                            0
+                            0,
+                            WIDTH,
+                            HEIGHT
                         );
 
 
@@ -1347,28 +1457,67 @@
 
 
     // ==========================================
-    // 64x32 PNG 다운로드
+    // 정확히 64x32 PNG 다운로드
     // ==========================================
 
     function downloadCape() {
 
-        const link =
-            document.createElement(
-                "a"
-            );
+        capeCanvas.toBlob(
+
+            blob => {
+
+                if (
+                    !blob
+                ) {
+
+                    alert(
+                        "PNG 생성에 실패했습니다."
+                    );
 
 
-        link.download =
-            "customcape.png";
+                    return;
+                }
 
 
-        link.href =
-            capeCanvas.toDataURL(
-                "image/png"
-            );
+                const url =
+                    URL.createObjectURL(
+                        blob
+                    );
 
 
-        link.click();
+                const link =
+                    document.createElement(
+                        "a"
+                    );
+
+
+                link.href =
+                    url;
+
+
+                link.download =
+                    "customcape.png";
+
+
+                document.body.appendChild(
+                    link
+                );
+
+
+                link.click();
+
+
+                link.remove();
+
+
+                URL.revokeObjectURL(
+                    url
+                );
+
+            },
+
+            "image/png"
+        );
     }
 
 
@@ -1378,7 +1527,10 @@
 
     updateFromRGB();
 
-    render();
+
+    loadDefaultCape(
+        false
+    );
 
 </script>
 
