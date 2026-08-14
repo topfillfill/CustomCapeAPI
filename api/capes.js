@@ -1,9 +1,10 @@
 import {
-    list
+    head
 } from "@vercel/blob";
 
 
-const MAX_UUIDS = 200;
+const MAX_UUIDS =
+    100;
 
 
 // ==========================================
@@ -12,18 +13,22 @@ const MAX_UUIDS = 200;
 
 function normalizeUuid(value) {
 
-    if (typeof value !== "string") {
+    if (!value) {
         return null;
     }
 
 
     const uuid =
-        value
-            .toLowerCase()
-            .replaceAll("-", "");
+        String(value)
+            .trim()
+            .replaceAll("-", "")
+            .toLowerCase();
 
 
-    if (!/^[0-9a-f]{32}$/.test(uuid)) {
+    if (
+        !/^[0-9a-f]{32}$/.test(uuid)
+    ) {
+
         return null;
     }
 
@@ -33,9 +38,101 @@ function normalizeUuid(value) {
 
 
 // ==========================================
-// POST
+// 망토 경로
+// ==========================================
+
+function capePath(uuid) {
+
+    return `capes/${uuid}.png`;
+}
+
+
+// ==========================================
+// Blob 없음 확인
+// ==========================================
+
+function isBlobNotFound(error) {
+
+    const name =
+        String(
+            error?.name ?? ""
+        );
+
+
+    const message =
+        String(
+            error?.message ?? ""
+        ).toLowerCase();
+
+
+    return (
+        name === "BlobNotFoundError"
+        ||
+        message.includes(
+            "requested blob does not exist"
+        )
+        ||
+        message.includes(
+            "blob does not exist"
+        )
+    );
+}
+
+
+// ==========================================
+// HEAD
 //
-// /api/capes
+// list() 사용하지 않음!
+// ==========================================
+
+async function getCapeInfo(uuid) {
+
+    try {
+
+        return await head(
+            capePath(uuid)
+        );
+
+    } catch (error) {
+
+        if (
+            isBlobNotFound(error)
+        ) {
+
+            return null;
+        }
+
+
+        throw error;
+    }
+}
+
+
+// ==========================================
+// JSON 응답
+// ==========================================
+
+function json(
+    data,
+    status = 200
+) {
+
+    return Response.json(
+        data,
+        {
+            status,
+
+            headers: {
+                "Cache-Control":
+                    "no-store"
+            }
+        }
+    );
+}
+
+
+// ==========================================
+// POST
 //
 // {
 //   "uuids": [
@@ -49,152 +146,145 @@ export async function POST(request) {
 
     try {
 
-        const body =
-            await request.json();
+        let body;
 
 
-        if (!Array.isArray(body.uuids)) {
+        try {
 
-            return Response.json(
+            body =
+                await request.json();
+
+        } catch {
+
+            return json(
                 {
-                    error: "invalid_request"
+                    error:
+                        "invalid_json"
                 },
-                {
-                    status: 400
-                }
+                400
             );
         }
 
 
-        const uuids =
-            [...new Set(
-                body.uuids
-                    .map(normalizeUuid)
-                    .filter(Boolean)
-            )]
-                .slice(
-                    0,
-                    MAX_UUIDS
-                );
+        if (
+            !Array.isArray(
+                body?.uuids
+            )
+        ) {
 
-
-        const results =
-            await Promise.all(
-
-                uuids.map(
-                    async uuid => {
-
-                        try {
-
-                            const result =
-                                await list({
-                                    prefix:
-                                        `capes/${uuid}/`,
-
-                                    limit: 10
-                                });
-
-
-                            if (
-                                result.blobs.length
-                                === 0
-                            ) {
-
-                                return [
-                                    uuid,
-                                    null
-                                ];
-                            }
-
-
-                            const blobs =
-                                [...result.blobs]
-                                    .sort(
-                                        (a, b) =>
-                                            new Date(
-                                                b.uploadedAt
-                                            )
-                                            -
-                                            new Date(
-                                                a.uploadedAt
-                                            )
-                                    );
-
-
-                            const cape =
-                                blobs[0];
-
-
-                            return [
-                                uuid,
-                                {
-                                    url:
-                                    cape.url,
-
-                                    etag:
-                                    cape.etag,
-
-                                    uploadedAt:
-                                    cape.uploadedAt
-                                }
-                            ];
-
-
-                        } catch (error) {
-
-                            console.error(
-                                "Cape lookup failed:",
-                                uuid,
-                                error
-                            );
-
-
-                            return [
-                                uuid,
-                                null
-                            ];
-                        }
-                    }
-                )
+            return json(
+                {
+                    error:
+                        "uuids_required"
+                },
+                400
             );
+        }
+
+
+        // ======================================
+        // UUID 정리 + 중복 제거
+        // ======================================
+
+        const uuids =
+            [
+                ...new Set(
+
+                    body.uuids
+
+                        .map(
+                            normalizeUuid
+                        )
+
+                        .filter(
+                            uuid =>
+                                uuid !== null
+                        )
+                )
+            ];
+
+
+        if (
+            uuids.length >
+            MAX_UUIDS
+        ) {
+
+            return json(
+                {
+                    error:
+                        "too_many_uuids"
+                },
+                400
+            );
+        }
 
 
         const capes = {};
 
 
-        for (
-            const [uuid, cape]
-            of results
-            ) {
+        // ======================================
+        // UUID마다 list()가 아니라 head()
+        // ======================================
 
-            if (cape !== null) {
+        await Promise.all(
 
-                capes[uuid] =
-                    cape;
+            uuids.map(
+
+                async uuid => {
+
+                    const blob =
+                        await getCapeInfo(
+                            uuid
+                        );
+
+
+                    if (!blob) {
+
+                        return;
+                    }
+
+
+                    capes[uuid] = {
+
+                        url:
+                        blob.url,
+
+                        etag:
+                        blob.etag,
+
+                        uploadedAt:
+                        blob.uploadedAt
+
+                    };
+                }
+            )
+        );
+
+
+        return json(
+            {
+                success:
+                    true,
+
+                capes
             }
-        }
-
-
-        return Response.json({
-
-            success: true,
-
-            capes: capes
-        });
+        );
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "[CustomCape] CAPES error:",
+            error
+        );
 
 
-        return Response.json(
+        return json(
             {
-                error: "server_error"
+                error:
+                    "server_error"
             },
-            {
-                status: 500
-            }
+            500
         );
     }
 }

@@ -1,11 +1,11 @@
 import {
-    put,
-    list,
-    del
+    head,
+    put
 } from "@vercel/blob";
 
 
-const MAX_CAPE_SIZE = 128 * 1024;
+const MAX_CAPE_SIZE =
+    128 * 1024;
 
 
 // ==========================================
@@ -18,11 +18,16 @@ function normalizeUuid(value) {
         return null;
     }
 
-    const uuid = value
-        .toLowerCase()
-        .replaceAll("-", "");
+    const uuid =
+        String(value)
+            .trim()
+            .replaceAll("-", "")
+            .toLowerCase();
 
-    if (!/^[0-9a-f]{32}$/.test(uuid)) {
+
+    if (
+        !/^[0-9a-f]{32}$/.test(uuid)
+    ) {
         return null;
     }
 
@@ -31,58 +36,189 @@ function normalizeUuid(value) {
 
 
 // ==========================================
-// PNG 확인
+// 고정 망토 경로
+//
+// 기존:
+// capes/UUID/시간.png
+//
+// 변경:
+// capes/UUID.png
 // ==========================================
 
-function validateCape(buffer) {
+function capePath(uuid) {
 
-    if (buffer.length < 24) {
+    return `capes/${uuid}.png`;
+}
+
+
+// ==========================================
+// Blob 없음 확인
+// ==========================================
+
+function isBlobNotFound(error) {
+
+    const name =
+        String(
+            error?.name ?? ""
+        );
+
+    const message =
+        String(
+            error?.message ?? ""
+        ).toLowerCase();
+
+
+    return (
+        name === "BlobNotFoundError"
+        ||
+        message.includes(
+            "requested blob does not exist"
+        )
+        ||
+        message.includes(
+            "blob does not exist"
+        )
+    );
+}
+
+
+// ==========================================
+// 안전한 HEAD
+// ==========================================
+
+async function getCapeInfo(uuid) {
+
+    try {
+
+        return await head(
+            capePath(uuid)
+        );
+
+    } catch (error) {
+
+        if (
+            isBlobNotFound(error)
+        ) {
+
+            return null;
+        }
+
+        throw error;
+    }
+}
+
+
+// ==========================================
+// PNG 64x32 검사
+// ==========================================
+
+function isValidCapePng(bytes) {
+
+    if (
+        !bytes
+        ||
+        bytes.length < 24
+    ) {
+
         return false;
     }
 
-    if (buffer.length > MAX_CAPE_SIZE) {
-        return false;
-    }
 
+    // PNG Signature
 
-    // PNG signature
     const signature = [
-        0x89,
-        0x50,
-        0x4E,
-        0x47,
-        0x0D,
-        0x0A,
-        0x1A,
-        0x0A
+        137,
+        80,
+        78,
+        71,
+        13,
+        10,
+        26,
+        10
     ];
 
 
-    for (let i = 0; i < signature.length; i++) {
+    for (
+        let i = 0;
+        i < signature.length;
+        i++
+    ) {
 
-        if (buffer[i] !== signature[i]) {
+        if (
+            bytes[i] !== signature[i]
+        ) {
+
             return false;
         }
     }
 
 
-    // PNG IHDR width / height
-    const view = new DataView(
-        buffer.buffer,
-        buffer.byteOffset,
-        buffer.byteLength
-    );
+    // IHDR 확인
+
+    if (
+        bytes[12] !== 73
+        ||
+        bytes[13] !== 72
+        ||
+        bytes[14] !== 68
+        ||
+        bytes[15] !== 82
+    ) {
+
+        return false;
+    }
+
+
+    const view =
+        new DataView(
+            bytes.buffer,
+            bytes.byteOffset,
+            bytes.byteLength
+        );
 
 
     const width =
-        view.getUint32(16, false);
+        view.getUint32(
+            16,
+            false
+        );
+
 
     const height =
-        view.getUint32(20, false);
+        view.getUint32(
+            20,
+            false
+        );
 
 
-    // 현재 CustomCape는 64x32
-    return width === 64 && height === 32;
+    return (
+        width === 64
+        &&
+        height === 32
+    );
+}
+
+
+// ==========================================
+// JSON 응답
+// ==========================================
+
+function json(
+    data,
+    status = 200
+) {
+
+    return Response.json(
+        data,
+        {
+            status,
+
+            headers: {
+                "Cache-Control":
+                    "no-store"
+            }
+        }
+    );
 }
 
 
@@ -97,81 +233,83 @@ export async function GET(request) {
     try {
 
         const url =
-            new URL(request.url);
+            new URL(
+                request.url
+            );
+
 
         const uuid =
             normalizeUuid(
-                url.searchParams.get("uuid")
+                url.searchParams.get(
+                    "uuid"
+                )
             );
 
 
         if (!uuid) {
 
-            return Response.json(
+            return json(
                 {
-                    error: "invalid_uuid"
+                    error:
+                        "invalid_uuid"
                 },
+                400
+            );
+        }
+
+
+        const blob =
+            await getCapeInfo(
+                uuid
+            );
+
+
+        if (!blob) {
+
+            return json(
                 {
-                    status: 400
+                    found:
+                        false,
+
+                    uuid
                 }
             );
         }
 
 
-        const result =
-            await list({
-                prefix: `capes/${uuid}/`,
-                limit: 10
-            });
+        return json(
+            {
+                found:
+                    true,
 
+                uuid,
 
-        if (result.blobs.length === 0) {
+                url:
+                blob.url,
 
-            return Response.json({
-                found: false
-            });
-        }
+                etag:
+                blob.etag,
 
-
-        const blobs =
-            [...result.blobs]
-                .sort(
-                    (a, b) =>
-                        new Date(b.uploadedAt)
-                        - new Date(a.uploadedAt)
-                );
-
-
-        const cape =
-            blobs[0];
-
-
-        return Response.json({
-
-            found: true,
-
-            uuid: uuid,
-
-            url: cape.url,
-
-            etag: cape.etag,
-
-            uploadedAt:
-            cape.uploadedAt
-        });
+                uploadedAt:
+                blob.uploadedAt
+            }
+        );
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "[CustomCape] GET error:",
+            error
+        );
 
-        return Response.json(
+
+        return json(
             {
-                error: "server_error"
+                error:
+                    "server_error"
             },
-            {
-                status: 500
-            }
+            500
         );
     }
 }
@@ -181,9 +319,7 @@ export async function GET(request) {
 // PUT
 //
 // /api/cape?uuid=UUID
-//
-// Body:
-// image/png
+// body = image/png
 // ==========================================
 
 export async function PUT(request) {
@@ -191,134 +327,170 @@ export async function PUT(request) {
     try {
 
         const url =
-            new URL(request.url);
+            new URL(
+                request.url
+            );
 
 
         const uuid =
             normalizeUuid(
-                url.searchParams.get("uuid")
+                url.searchParams.get(
+                    "uuid"
+                )
             );
 
 
         if (!uuid) {
 
-            return Response.json(
+            return json(
                 {
-                    error: "invalid_uuid"
+                    error:
+                        "invalid_uuid"
                 },
-                {
-                    status: 400
-                }
+                400
             );
         }
 
 
-        const arrayBuffer =
+        const contentType =
+            request.headers
+                .get(
+                    "content-type"
+                )
+                ?.toLowerCase()
+            ?? "";
+
+
+        if (
+            !contentType.startsWith(
+                "image/png"
+            )
+        ) {
+
+            return json(
+                {
+                    error:
+                        "png_required"
+                },
+                415
+            );
+        }
+
+
+        const buffer =
             await request.arrayBuffer();
+
+
+        if (
+            buffer.byteLength === 0
+        ) {
+
+            return json(
+                {
+                    error:
+                        "empty_file"
+                },
+                400
+            );
+        }
+
+
+        if (
+            buffer.byteLength >
+            MAX_CAPE_SIZE
+        ) {
+
+            return json(
+                {
+                    error:
+                        "file_too_large"
+                },
+                413
+            );
+        }
 
 
         const bytes =
             new Uint8Array(
-                arrayBuffer
+                buffer
             );
 
 
-        if (!validateCape(bytes)) {
+        if (
+            !isValidCapePng(
+                bytes
+            )
+        ) {
 
-            return Response.json(
+            return json(
                 {
-                    error: "invalid_cape",
-                    message: "Cape must be a valid 64x32 PNG."
+                    error:
+                        "cape_must_be_64x32_png"
                 },
-                {
-                    status: 400
-                }
+                400
             );
         }
 
 
-        // ==================================
-        // 기존 망토 확인
-        // ==================================
-
-        const oldResult =
-            await list({
-                prefix: `capes/${uuid}/`,
-                limit: 100
-            });
-
-
-        // ==================================
-        // 새 망토
-        //
-        // 매번 새 URL 사용
-        // CDN 캐시 문제 방지
-        // ==================================
-
-        const pathname =
-            `capes/${uuid}/${Date.now()}.png`;
-
+        // ======================================
+        // UUID당 딱 1개만 저장
+        // 같은 파일 계속 덮어쓰기
+        // ======================================
 
         const blob =
             await put(
-                pathname,
-                bytes,
+                capePath(uuid),
+                buffer,
                 {
-                    access: "public",
+                    access:
+                        "public",
 
-                    addRandomSuffix: false,
+                    contentType:
+                        "image/png",
 
-                    contentType: "image/png",
+                    addRandomSuffix:
+                        false,
 
+                    allowOverwrite:
+                        true,
+
+                    // 이전 이미지가 너무 오래 캐시되는 것 방지
                     cacheControlMaxAge:
-                        31536000
+                        60
                 }
             );
 
 
-        // ==================================
-        // 이전 망토 삭제
-        // ==================================
+        return json(
+            {
+                success:
+                    true,
 
-        const oldUrls =
-            oldResult.blobs
-                .map(blob => blob.url)
-                .filter(oldUrl =>
-                    oldUrl !== blob.url
-                );
+                uuid,
 
+                url:
+                blob.url,
 
-        if (oldUrls.length > 0) {
-
-            await del(
-                oldUrls
-            );
-        }
-
-
-        return Response.json({
-
-            success: true,
-
-            uuid: uuid,
-
-            url: blob.url,
-
-            etag: blob.etag
-        });
+                etag:
+                blob.etag
+            }
+        );
 
 
     } catch (error) {
 
-        console.error(error);
+        console.error(
+            "[CustomCape] PUT error:",
+            error
+        );
 
-        return Response.json(
+
+        return json(
             {
-                error: "server_error"
+                error:
+                    "server_error"
             },
-            {
-                status: 500
-            }
+            500
         );
     }
 }
