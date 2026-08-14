@@ -1,151 +1,411 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+    >
+
+    <!-- ========================================
+         기본 사이트 정보
+    ========================================= -->
 
     <title>CustomCape 망토 제작기</title>
 
+    <meta
+            name="description"
+            content="마인크래프트 64×32 커스텀 망토를 직접 그리고 PNG로 만들어보세요."
+    >
+
+
+    <!-- ========================================
+         Discord / Open Graph 임베드
+    ========================================= -->
+
+    <meta
+            property="og:type"
+            content="website"
+    >
+
+    <meta
+            property="og:site_name"
+            content="CustomCape"
+    >
+
+    <meta
+            property="og:title"
+            content="CustomCape 망토 제작기"
+    >
+
+    <meta
+            property="og:description"
+            content="마인크래프트 64×32 커스텀 망토를 직접 그리고 PNG로 만들어보세요."
+    >
+
+    <meta
+            property="og:url"
+            content="https://customcapeapi.vercel.app/"
+    >
+
+    <meta
+            property="og:image"
+            content="https://customcapeapi.vercel.app/discord-preview.png"
+    >
+
+    <meta
+            property="og:image:width"
+            content="1200"
+    >
+
+    <meta
+            property="og:image:height"
+            content="630"
+    >
+
+
+    <!-- ========================================
+         기타 링크 미리보기
+    ========================================= -->
+
+    <meta
+            name="twitter:card"
+            content="summary_large_image"
+    >
+
+    <meta
+            name="twitter:title"
+            content="CustomCape 망토 제작기"
+    >
+
+    <meta
+            name="twitter:description"
+            content="마인크래프트 64×32 커스텀 망토를 직접 그리고 PNG로 만들어보세요."
+    >
+
+    <meta
+            name="twitter:image"
+            content="https://customcapeapi.vercel.app/discord-preview.png"
+    >
+
+
+    <!-- Discord 임베드 왼쪽 색상 -->
+    <meta
+            name="theme-color"
+            content="#5865F2"
+    >
+
+
     <style>
+
         * {
             box-sizing: border-box;
         }
 
+
         body {
+
             margin: 0;
+
             background: #111318;
+
             color: white;
-            font-family: Arial, "Noto Sans KR", sans-serif;
+
+            font-family:
+                    Arial,
+                    "Noto Sans KR",
+                    sans-serif;
         }
+
 
         header {
+
             text-align: center;
+
             padding: 24px;
+
             background: #181b22;
-            border-bottom: 1px solid #303641;
+
+            border-bottom:
+                    1px solid #303641;
         }
+
 
         header h1 {
-            margin: 0 0 8px;
+
+            margin:
+                    0 0 8px;
+
+            font-size: 28px;
         }
 
+
         header p {
+
             margin: 0;
+
             color: #a7afbd;
         }
 
+
         .container {
+
             max-width: 1150px;
-            margin: 25px auto;
-            padding: 0 15px;
+
+            margin:
+                    25px auto;
+
+            padding:
+                    0 15px;
         }
+
 
         .panel {
-            background: #191d24;
-            border: 1px solid #2d333d;
-            border-radius: 14px;
-            padding: 18px;
-            margin-bottom: 18px;
+
+            background:
+                    #191d24;
+
+            border:
+                    1px solid #2d333d;
+
+            border-radius:
+                    14px;
+
+            padding:
+                    18px;
+
+            margin-bottom:
+                    18px;
         }
 
+
         .toolbar {
+
             display: flex;
+
             flex-wrap: wrap;
+
             align-items: center;
+
             gap: 10px;
         }
 
+
         button,
         .file-button {
-            background: #262c36;
-            color: white;
-            border: 1px solid #3a424f;
-            border-radius: 8px;
-            padding: 10px 14px;
-            cursor: pointer;
-            font-size: 14px;
+
+            background:
+                    #262c36;
+
+            color:
+                    white;
+
+            border:
+                    1px solid #3a424f;
+
+            border-radius:
+                    8px;
+
+            padding:
+                    10px 14px;
+
+            cursor:
+                    pointer;
+
+            font-size:
+                    14px;
+
+            transition:
+                    0.15s;
         }
+
 
         button:hover,
         .file-button:hover {
-            background: #333b48;
+
+            background:
+                    #333b48;
         }
+
 
         button.active {
-            background: #5865f2;
-            border-color: #7580ff;
+
+            background:
+                    #5865f2;
+
+            border-color:
+                    #7580ff;
         }
+
 
         .download {
-            background: #248046;
-            border-color: #35a45b;
+
+            background:
+                    #248046;
+
+            border-color:
+                    #35a45b;
         }
+
 
         .download:hover {
-            background: #2d9955;
+
+            background:
+                    #2d9955;
         }
+
 
         .reset {
-            background: #704b22;
-            border-color: #976a32;
+
+            background:
+                    #704b22;
+
+            border-color:
+                    #976a32;
         }
+
 
         .reset:hover {
-            background: #855c29;
+
+            background:
+                    #855c29;
         }
+
 
         input[type="file"] {
-            display: none;
+
+            display:
+                    none;
         }
+
 
         .rgb-box {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background: #11151b;
-            padding: 6px 10px;
-            border-radius: 8px;
+
+            display:
+                    flex;
+
+            align-items:
+                    center;
+
+            gap:
+                    5px;
+
+            background:
+                    #11151b;
+
+            padding:
+                    6px 10px;
+
+            border-radius:
+                    8px;
         }
+
 
         .rgb-box input[type="number"] {
-            width: 58px;
-            background: #242a33;
-            color: white;
-            border: 1px solid #3b4452;
-            border-radius: 5px;
-            padding: 7px;
+
+            width:
+                    58px;
+
+            background:
+                    #242a33;
+
+            color:
+                    white;
+
+            border:
+                    1px solid #3b4452;
+
+            border-radius:
+                    5px;
+
+            padding:
+                    7px;
         }
+
 
         #colorPicker {
-            width: 48px;
-            height: 38px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
+
+            width:
+                    48px;
+
+            height:
+                    38px;
+
+            border:
+                    none;
+
+            background:
+                    transparent;
+
+            cursor:
+                    pointer;
         }
+
 
         .color-preview {
-            width: 35px;
-            height: 35px;
-            border-radius: 6px;
-            border: 2px solid white;
-            background: rgb(255, 0, 0);
+
+            width:
+                    35px;
+
+            height:
+                    35px;
+
+            border-radius:
+                    6px;
+
+            border:
+                    2px solid white;
+
+            background:
+                    rgb(255, 0, 0);
         }
 
-        .canvas-container {
-            overflow: auto;
-            padding: 20px;
-            border-radius: 12px;
 
-            background-color: #242a33;
+        .canvas-container {
+
+            overflow:
+                    auto;
+
+            padding:
+                    20px;
+
+            border-radius:
+                    12px;
+
+            background-color:
+                    #242a33;
 
             background-image:
-                    linear-gradient(45deg, #353c47 25%, transparent 25%),
-                    linear-gradient(-45deg, #353c47 25%, transparent 25%),
-                    linear-gradient(45deg, transparent 75%, #353c47 75%),
-                    linear-gradient(-45deg, transparent 75%, #353c47 75%);
 
-            background-size: 20px 20px;
+                    linear-gradient(
+                            45deg,
+                            #353c47 25%,
+                            transparent 25%
+                    ),
+
+                    linear-gradient(
+                            -45deg,
+                            #353c47 25%,
+                            transparent 25%
+                    ),
+
+                    linear-gradient(
+                            45deg,
+                            transparent 75%,
+                            #353c47 75%
+                    ),
+
+                    linear-gradient(
+                            -45deg,
+                            transparent 75%,
+                            #353c47 75%
+                    );
+
+            background-size:
+                    20px 20px;
 
             background-position:
                     0 0,
@@ -154,65 +414,141 @@
                     -10px 0;
         }
 
+
         #editor {
-            display: block;
-            width: 1024px;
-            height: 512px;
 
-            image-rendering: pixelated;
-            image-rendering: crisp-edges;
+            display:
+                    block;
 
-            cursor: crosshair;
-            touch-action: none;
+            width:
+                    1024px;
+
+            height:
+                    512px;
+
+            image-rendering:
+                    pixelated;
+
+            image-rendering:
+                    crisp-edges;
+
+            cursor:
+                    crosshair;
+
+            touch-action:
+                    none;
         }
+
 
         .info {
-            margin-top: 12px;
-            font-size: 13px;
-            color: #a7afbd;
+
+            margin-top:
+                    12px;
+
+            font-size:
+                    13px;
+
+            color:
+                    #a7afbd;
         }
+
 
         .coordinate {
-            margin-left: auto;
-            color: #a7afbd;
-            font-size: 13px;
+
+            margin-left:
+                    auto;
+
+            color:
+                    #a7afbd;
+
+            font-size:
+                    13px;
         }
 
-        @media (max-width: 700px) {
-            .container {
-                padding: 0 8px;
+
+        .footer {
+
+            text-align:
+                    center;
+
+            color:
+                    #77808f;
+
+            font-size:
+                    13px;
+
+            padding:
+                    10px 0 30px;
+        }
+
+
+        @media (
+        max-width: 700px
+        ) {
+
+            header h1 {
+
+                font-size:
+                        23px;
             }
+
+
+            .container {
+
+                padding:
+                        0 8px;
+            }
+
 
             .panel {
-                padding: 12px;
+
+                padding:
+                        12px;
             }
+
         }
+
     </style>
+
 </head>
+
 
 <body>
 
+
 <header>
-    <h1>CustomCape 망토 제작기</h1>
+
+    <h1>
+        🎨 CustomCape
+    </h1>
 
     <p>
-        64×32 픽셀 Minecraft 망토를 직접 만들어보세요.
+        Minecraft 64×32 커스텀 망토 제작기
     </p>
+
 </header>
 
 
 <div class="container">
 
+
+    <!-- ========================================
+         도구
+    ========================================= -->
+
     <div class="panel">
 
         <div class="toolbar">
+
 
             <button
                     id="pencilBtn"
                     class="active"
                     onclick="setTool('pencil')"
             >
+
                 ✏ 연필
+
             </button>
 
 
@@ -220,7 +556,9 @@
                     id="eraserBtn"
                     onclick="setTool('eraser')"
             >
+
                 ⌫ 지우개
+
             </button>
 
 
@@ -228,9 +566,13 @@
                     id="pickerBtn"
                     onclick="setTool('picker')"
             >
+
                 💧 스포이드
+
             </button>
 
+
+            <!-- RGB -->
 
             <div class="rgb-box">
 
@@ -244,6 +586,7 @@
                         value="255"
                 >
 
+
                 G
 
                 <input
@@ -253,6 +596,7 @@
                         max="255"
                         value="0"
                 >
+
 
                 B
 
@@ -267,10 +611,13 @@
             </div>
 
 
+            <!-- 색상 선택 -->
+
             <input
                     id="colorPicker"
                     type="color"
                     value="#ff0000"
+                    title="색상 선택"
             >
 
 
@@ -280,13 +627,21 @@
             ></div>
 
 
-            <button onclick="undo()">
+            <button
+                    onclick="undo()"
+            >
+
                 ↶ 실행 취소
+
             </button>
 
 
-            <button onclick="clearCanvas()">
+            <button
+                    onclick="clearCanvas()"
+            >
+
                 전체 지우기
+
             </button>
 
 
@@ -294,13 +649,18 @@
                     class="reset"
                     onclick="resetToDefault()"
             >
+
                 기본 양식 복원
+
             </button>
 
 
-            <label class="file-button">
+            <label
+                    class="file-button"
+            >
 
                 PNG 불러오기
+
 
                 <input
                         id="fileInput"
@@ -315,7 +675,9 @@
                     class="download"
                     onclick="downloadCape()"
             >
+
                 ⬇ PNG 다운로드
+
             </button>
 
 
@@ -323,7 +685,9 @@
                     id="coordinate"
                     class="coordinate"
             >
+
                 X: - / Y: -
+
             </div>
 
         </div>
@@ -331,9 +695,17 @@
     </div>
 
 
+    <!-- ========================================
+         그림판
+    ========================================= -->
+
     <div class="panel">
 
-        <div class="canvas-container">
+
+        <div
+                class="canvas-container"
+        >
+
 
             <canvas
                     id="editor"
@@ -341,57 +713,82 @@
                     height="512"
             ></canvas>
 
+
         </div>
 
 
         <div class="info">
 
             한 칸 = 실제 PNG의 1픽셀
+
             &nbsp;|&nbsp;
 
             실제 저장 크기:
-            <b>64 × 32 PNG</b>
+
+            <b>
+                64 × 32 PNG
+            </b>
 
             &nbsp;|&nbsp;
 
-            처음 접속하면 기본 망토 양식이 자동으로 표시됩니다.
+            RGB 값은 0~255까지 입력할 수 있습니다.
 
         </div>
 
+
     </div>
+
+
+    <div class="footer">
+
+        CustomCape · Minecraft Cape Editor
+
+    </div>
+
 
 </div>
 
 
 <script>
 
-    // ==========================================
-    // 기본 설정
-    // ==========================================
-
-    const WIDTH = 64;
-    const HEIGHT = 32;
-    const SCALE = 16;
-
 
     // ==========================================
-    // 기본 망토 이미지
-    // 사용자가 올린 64x32 PNG를 HTML 내부에 저장
+    // 기본 크기
+    // ==========================================
+
+    const WIDTH =
+        64;
+
+    const HEIGHT =
+        32;
+
+    const SCALE =
+        16;
+
+
+    // ==========================================
+    // 기본 망토 양식
+    //
+    // 같은 폴더의 default-cape.png 사용
     // ==========================================
 
     const DEFAULT_CAPE =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAgCAMAAACVQ462AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJUExURQAAAP///wAAAHPGg3EAAAADdFJOU///ANfKDUEAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAZdEVYdFNvZnR3YXJlAFBhaW50Lk5FVCA1LjEuMTGKCBbOAAAAuGVYSWZJSSoACAAAAAUAGgEFAAEAAABKAAAAGwEFAAEAAABSAAAAKAEDAAEAAAACAAAAMQECABEAAABaAAAAaYcEAAEAAABsAAAAAAAAAGAAAAABAAAAYAAAAAEAAABQYWludC5ORVQgNS4xLjExAAADAACQBwAEAAAAMDIzMAGgAwABAAAAAQAAAAWgBAABAAAAlgAAAAAAAAACAAEAAgAEAAAAUjk4AAIABwAEAAAAMDEwMAAAAAAGNdRzso9yOwAAAMlJREFUSEvtlEEShSAMQwv3P7RDG5C2QVG3ZlwwSX0/gn6pQlRPEctJpAxNy3lgHs+6Bdx12AJYygmWSr9K+6kiDlAB5gQFtFv0PrRIAGTOhVKDFaDlzoXiHvBHaObiGZDoxGAlQPedjRCdUR8nlgAYczbC1EAXaeYa0BueAD9qe8g3IQNs6Yd69AGAds62bA9Abcu2AHhRX++BHqSelbc1ioaJAniDaJgiwL6n94DxRQebTELRvjjGaJiSvfxbI9Yz/YAf0PQZcABjTAzvSFDNiAAAAABJRU5ErkJggg==";
+        "/default-cape.png";
 
 
     // ==========================================
-    // 실제 저장될 64x32 캔버스
+    // 실제 64x32 PNG 캔버스
     // ==========================================
 
     const capeCanvas =
-        document.createElement("canvas");
+        document.createElement(
+            "canvas"
+        );
+
 
     capeCanvas.width =
         WIDTH;
+
 
     capeCanvas.height =
         HEIGHT;
@@ -401,7 +798,8 @@
         capeCanvas.getContext(
             "2d",
             {
-                willReadFrequently: true
+                willReadFrequently:
+                    true
             }
         );
 
@@ -411,7 +809,7 @@
 
 
     // ==========================================
-    // 화면 표시용 캔버스
+    // 화면 표시 캔버스
     // ==========================================
 
     const editor =
@@ -431,7 +829,7 @@
 
 
     // ==========================================
-    // RGB 관련
+    // RGB
     // ==========================================
 
     const red =
@@ -471,7 +869,7 @@
 
 
     // ==========================================
-    // 현재 상태
+    // 상태
     // ==========================================
 
     let tool =
@@ -495,17 +893,23 @@
 
 
     // ==========================================
-    // RGB 숫자 제한
+    // RGB 제한
     // ==========================================
 
-    function clampRGB(value) {
+    function clampRGB(
+        value
+    ) {
 
         value =
-            parseInt(value);
+            parseInt(
+                value
+            );
 
 
         if (
-            isNaN(value)
+            isNaN(
+                value
+            )
         ) {
 
             return 0;
@@ -513,11 +917,14 @@
 
 
         return Math.max(
+
             0,
+
             Math.min(
                 255,
                 value
             )
+
         );
     }
 
@@ -533,12 +940,33 @@
     ) {
 
         return "#"
+
             +
-            r.toString(16).padStart(2, "0")
+
+            r
+                .toString(16)
+                .padStart(
+                    2,
+                    "0"
+                )
+
             +
-            g.toString(16).padStart(2, "0")
+
+            g
+                .toString(16)
+                .padStart(
+                    2,
+                    "0"
+                )
+
             +
-            b.toString(16).padStart(2, "0");
+
+            b
+                .toString(16)
+                .padStart(
+                    2,
+                    "0"
+                );
     }
 
 
@@ -546,7 +974,9 @@
     // HEX → RGB
     // ==========================================
 
-    function hexToRgb(hex) {
+    function hexToRgb(
+        hex
+    ) {
 
         return {
 
@@ -559,6 +989,7 @@
                     16
                 ),
 
+
             g:
                 parseInt(
                     hex.substring(
@@ -567,6 +998,7 @@
                     ),
                     16
                 ),
+
 
             b:
                 parseInt(
@@ -582,7 +1014,7 @@
 
 
     // ==========================================
-    // 현재 RGB 색상
+    // 현재 색상
     // ==========================================
 
     function getColor() {
@@ -610,7 +1042,7 @@
 
 
     // ==========================================
-    // RGB 입력 변경
+    // RGB 변경
     // ==========================================
 
     function updateFromRGB() {
@@ -663,7 +1095,7 @@
 
 
     // ==========================================
-    // 색상 선택창 변경
+    // 색상 선택기 변경
     // ==========================================
 
     function updateFromPicker() {
@@ -719,7 +1151,9 @@
     // 도구 선택
     // ==========================================
 
-    function setTool(name) {
+    function setTool(
+        name
+    ) {
 
         tool =
             name;
@@ -764,6 +1198,7 @@
                 .classList.add(
                 "active"
             );
+
         }
 
 
@@ -779,6 +1214,7 @@
                 .classList.add(
                 "active"
             );
+
         }
 
 
@@ -794,12 +1230,14 @@
                 .classList.add(
                 "active"
             );
+
         }
+
     }
 
 
     // ==========================================
-    // 편집 화면 렌더링
+    // 화면 그리기
     // ==========================================
 
     function render() {
@@ -826,11 +1264,12 @@
 
 
         drawGrid();
+
     }
 
 
     // ==========================================
-    // 64 x 32 픽셀 그리드
+    // 64x32 그리드
     // ==========================================
 
     function drawGrid() {
@@ -868,6 +1307,7 @@
                 px,
                 HEIGHT * SCALE
             );
+
         }
 
 
@@ -893,18 +1333,22 @@
                 WIDTH * SCALE,
                 py
             );
+
         }
 
 
         ctx.stroke();
+
     }
 
 
     // ==========================================
-    // 마우스 좌표 → 64x32 픽셀 위치
+    // 포인터 → 픽셀 위치
     // ==========================================
 
-    function getPixel(event) {
+    function getPixel(
+        event
+    ) {
 
         const rect =
             editor
@@ -925,21 +1369,25 @@
 
         const x =
             Math.floor(
+
                 mouseX
                 /
                 rect.width
                 *
                 WIDTH
+
             );
 
 
         const y =
             Math.floor(
+
                 mouseY
                 /
                 rect.height
                 *
                 HEIGHT
+
             );
 
 
@@ -954,6 +1402,7 @@
                     )
                 ),
 
+
             y:
                 Math.max(
                     0,
@@ -964,11 +1413,12 @@
                 )
 
         };
+
     }
 
 
     // ==========================================
-    // 작업 기록 저장
+    // 히스토리
     // ==========================================
 
     function saveHistory() {
@@ -991,7 +1441,9 @@
         ) {
 
             history.shift();
+
         }
+
     }
 
 
@@ -1007,6 +1459,7 @@
         ) {
 
             return;
+
         }
 
 
@@ -1022,6 +1475,7 @@
 
 
         render();
+
     }
 
 
@@ -1049,6 +1503,7 @@
                 1,
                 1
             );
+
         }
 
 
@@ -1063,10 +1518,12 @@
                 1,
                 1
             );
+
         }
 
 
         render();
+
     }
 
 
@@ -1096,6 +1553,7 @@
         ) {
 
             return;
+
         }
 
 
@@ -1117,15 +1575,18 @@
         setTool(
             "pencil"
         );
+
     }
 
 
     // ==========================================
-    // 마우스 클릭 시작
+    // 포인터 시작
     // ==========================================
 
     editor.addEventListener(
+
         "pointerdown",
+
         event => {
 
             event.preventDefault();
@@ -1149,6 +1610,7 @@
 
 
                 return;
+
             }
 
 
@@ -1176,16 +1638,20 @@
             editor.setPointerCapture(
                 event.pointerId
             );
+
         }
+
     );
 
 
     // ==========================================
-    // 마우스 드래그
+    // 포인터 이동
     // ==========================================
 
     editor.addEventListener(
+
         "pointermove",
+
         event => {
 
             const pixel =
@@ -1203,6 +1669,7 @@
             ) {
 
                 return;
+
             }
 
 
@@ -1213,6 +1680,7 @@
             ) {
 
                 return;
+
             }
 
 
@@ -1228,16 +1696,20 @@
 
             lastY =
                 pixel.y;
+
         }
+
     );
 
 
     // ==========================================
-    // 마우스 클릭 종료
+    // 포인터 종료
     // ==========================================
 
     window.addEventListener(
+
         "pointerup",
+
         () => {
 
             drawing =
@@ -1250,7 +1722,9 @@
 
             lastY =
                 -1;
+
         }
+
     );
 
 
@@ -1267,6 +1741,7 @@
         ) {
 
             return;
+
         }
 
 
@@ -1282,11 +1757,12 @@
 
 
         render();
+
     }
 
 
     // ==========================================
-    // 기본 양식 불러오기
+    // 기본 양식
     // ==========================================
 
     function loadDefaultCape(
@@ -1306,6 +1782,7 @@
                 ) {
 
                     saveHistory();
+
                 }
 
 
@@ -1331,11 +1808,27 @@
 
 
                 render();
+
+            };
+
+
+        image.onerror =
+            function() {
+
+
+                console.error(
+                    "default-cape.png 파일을 찾을 수 없습니다."
+                );
+
+
+                render();
+
             };
 
 
         image.src =
             DEFAULT_CAPE;
+
     }
 
 
@@ -1352,17 +1845,19 @@
         ) {
 
             return;
+
         }
 
 
         loadDefaultCape(
             true
         );
+
     }
 
 
     // ==========================================
-    // 사용자가 PNG 불러오기
+    // PNG 불러오기
     // ==========================================
 
     document
@@ -1370,11 +1865,15 @@
             "fileInput"
         )
         .addEventListener(
+
             "change",
+
             event => {
 
                 const file =
-                    event.target.files[0];
+                    event
+                        .target
+                        .files[0];
 
 
                 if (
@@ -1382,6 +1881,7 @@
                 ) {
 
                     return;
+
                 }
 
 
@@ -1395,10 +1895,10 @@
 
                         if (
                             image.width !==
-                            64
+                            WIDTH
                             ||
                             image.height !==
-                            32
+                            HEIGHT
                         ) {
 
                             alert(
@@ -1412,6 +1912,7 @@
 
 
                             return;
+
                         }
 
 
@@ -1445,6 +1946,7 @@
                         URL.revokeObjectURL(
                             image.src
                         );
+
                     };
 
 
@@ -1452,12 +1954,14 @@
                     URL.createObjectURL(
                         file
                     );
+
             }
+
         );
 
 
     // ==========================================
-    // 정확히 64x32 PNG 다운로드
+    // PNG 다운로드
     // ==========================================
 
     function downloadCape() {
@@ -1476,6 +1980,7 @@
 
 
                     return;
+
                 }
 
 
@@ -1517,7 +2022,9 @@
             },
 
             "image/png"
+
         );
+
     }
 
 
@@ -1532,7 +2039,10 @@
         false
     );
 
+
 </script>
 
+
 </body>
+
 </html>
